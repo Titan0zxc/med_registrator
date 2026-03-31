@@ -1,0 +1,55 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Пациент" as Patient
+actor "Сотрудник скорой" as AmbulanceStaff
+actor "API МИС (внешняя система)" as MIS
+actor "API Страховой" as Insurance
+
+rectangle "Цифровой двойник регистратора" {
+
+  usecase "Заполнить анкету" as UC1
+  usecase "Зарегистрироваться/Войти" as UC2
+  usecase "Просмотреть историю\nзаписей" as UC3
+  usecase "Активные записи" as UC4
+  usecase "Отменить запись" as UC5
+  usecase "Получить талон\n(время, очередь)" as UC6
+  usecase "Получить рекомендации" as UC7
+
+  usecase "Проверить пациента\nв МИС" as UC8
+  usecase "Определить приоритет\n(триаж)" as UC9
+  usecase "Выбрать ближайшую\nполиклинику" as UC10
+  usecase "Забронировать слот\nу врача" as UC11
+  usecase "Передать вызов\nв скорую" as UC12
+  usecase "Принять вызов" as UC13
+  usecase "Передать отчёт\nв страховую" as UC14
+}
+
+' Пациент взаимодействует
+Patient --> UC1
+Patient --> UC2
+Patient --> UC3
+Patient --> UC4
+Patient --> UC5
+Patient --> UC6
+Patient --> UC7
+
+' Система взаимодействует с API
+UC2 ..> UC8 : <<include>>
+UC1 ..> UC9 : <<include>>
+UC9 ..> UC10 : <<extend>>
+UC9 ..> UC11 : <<extend>>
+UC9 ..> UC12 : <<extend>>
+
+' Внешние актёры
+MIS <-- UC8
+MIS <-- UC11
+AmbulanceStaff --> UC13
+UC12 <-- UC13 : получает вызов
+Insurance <-- UC14
+
+' Дополнительные связи
+UC4 <.. UC6 : включает
+UC6 <.. UC7 : включает
+@enduml
