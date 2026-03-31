@@ -65,10 +65,10 @@
 
 | Контекстная диаграмма |
 | :---: |
-| <img src="scrin/Контекстная_диаграмма.drawio" width="400"/> |
+| <img src="scrin/Контекстная.png" width="400"/> |
 | Use Case |
 | :---: |
-| <img src="scrin/use_case.puml" width="400"/> |
+| <img src="scrin/usecase.png" width="400"/> |
 
 ## 5. Концепция «Цифрового двойника»
 Почему это двойник, а не просто «запись к врачу»?
