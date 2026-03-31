@@ -67,7 +67,6 @@
 | :---: |
 | <img src="scrin/Контекстная.png" width="400"/> |
 | Use Case |
-| :---: |
 | <img src="scrin/usecase.png" width="400"/> |
 
 ## 5. Концепция «Цифрового двойника»
