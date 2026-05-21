@@ -19,13 +19,13 @@ public class RoutingFilter implements Filter {
     public void process(Questionnaire questionnaire, Appeal appeal) {
         if (appeal.hasError()) return;
 
-        // Сохраняем анкету в БД
         try {
             String symptomsStr = questionnaire.getSymptoms().stream()
                     .map(s -> s.getName() + ":" + s.getScore())
                     .collect(Collectors.joining(", "));
 
             int qId = DatabaseManager.getInstance().saveQuestionnaire(
+                    questionnaire.getFullName(),   // ФИО
                     symptomsStr,
                     questionnaire.getTotalScore(),
                     questionnaire.getChronic(),
@@ -33,20 +33,16 @@ public class RoutingFilter implements Filter {
             );
             appeal.setQuestionnaireId(qId);
 
-            // Маршрутизация
             Ticket ticket = switch (appeal.getPriority()) {
                 case RED    -> new RedHandler().handle(questionnaire, appeal);
                 case YELLOW -> new YellowHandler().handle(questionnaire, appeal);
                 case GREEN  -> new GreenHandler().handle(questionnaire, appeal);
             };
 
-            // Сохраняем обращение и талон
             int appealId = DatabaseManager.getInstance().saveAppeal(qId, appeal.getPriority().name());
             DatabaseManager.getInstance().saveTicket(appealId, ticket.getType(), ticket.getDetails());
             ticket.setAppealId(appealId);
-
             this.resultTicket = ticket;
-            System.out.println("[Фильтр 3] Маршрутизация: " + appeal.getPriority() + " → талон сформирован");
 
         } catch (SQLException e) {
             appeal.setErrorMessage("Ошибка БД: " + e.getMessage());
