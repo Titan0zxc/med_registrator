@@ -3,7 +3,7 @@ package main.med_registrator.model;
 import java.util.List;
 
 public class Questionnaire {
-    private String fullName;  
+    private String fullName;
     private int age;
     private String chronic;
     private List<Symptom> symptoms;

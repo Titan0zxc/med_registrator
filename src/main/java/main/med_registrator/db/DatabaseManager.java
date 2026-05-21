@@ -1,6 +1,8 @@
 package main.med_registrator.db;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
 
@@ -11,9 +13,7 @@ public class DatabaseManager {
     private DatabaseManager() {}
 
     public static DatabaseManager getInstance() {
-        if (instance == null) {
-            instance = new DatabaseManager();
-        }
+        if (instance == null) instance = new DatabaseManager();
         return instance;
     }
 
@@ -23,6 +23,7 @@ public class DatabaseManager {
             st.execute("""
                 CREATE TABLE IF NOT EXISTS questionnaires (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    full_name TEXT,
                     symptoms TEXT,
                     total_score INTEGER,
                     chronic TEXT,
@@ -47,13 +48,15 @@ public class DatabaseManager {
         }
     }
 
-    public int saveQuestionnaire(String symptoms, int totalScore, String chronic, int age) throws SQLException {
-        String sql = "INSERT INTO questionnaires (symptoms, total_score, chronic, age) VALUES (?, ?, ?, ?)";
+    public int saveQuestionnaire(String fullName, String symptoms, int totalScore,
+                                 String chronic, int age) throws SQLException {
+        String sql = "INSERT INTO questionnaires (full_name, symptoms, total_score, chronic, age) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, symptoms);
-            ps.setInt(2, totalScore);
-            ps.setString(3, chronic);
-            ps.setInt(4, age);
+            ps.setString(1, fullName);
+            ps.setString(2, symptoms);
+            ps.setInt(3, totalScore);
+            ps.setString(4, chronic);
+            ps.setInt(5, age);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 return rs.next() ? rs.getInt(1) : -1;
@@ -81,5 +84,32 @@ public class DatabaseManager {
             ps.setString(3, details);
             ps.executeUpdate();
         }
+    }
+
+    // Для журнала — возвращает все обращения
+    public List<String[]> getAllAppeals() throws SQLException {
+        String sql = """
+            SELECT a.id, q.full_name, q.age, a.priority, a.created_at, t.type, t.details
+            FROM appeals a
+            JOIN questionnaires q ON a.questionnaire_id = q.id
+            LEFT JOIN tickets t ON t.appeal_id = a.id
+            ORDER BY a.created_at DESC
+        """;
+        List<String[]> result = new ArrayList<>();
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                result.add(new String[]{
+                        rs.getString("id"),
+                        rs.getString("full_name"),
+                        rs.getString("age"),
+                        rs.getString("priority"),
+                        rs.getString("created_at"),
+                        rs.getString("type"),
+                        rs.getString("details")
+                });
+            }
+        }
+        return result;
     }
 }
