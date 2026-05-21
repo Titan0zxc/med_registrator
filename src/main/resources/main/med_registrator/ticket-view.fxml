@@ -3,13 +3,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox fx:id="root" spacing="20" style="-fx-background-color: #FFFFFF;"
+<VBox fx:id="root" spacing="16" style="-fx-background-color: #FFFFFF;"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="main.med_registrator.controller.TicketController">
-    <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+    <padding><Insets top="32" right="32" bottom="24" left="32"/></padding>
 
     <Label text="ТАЛОН ПАЦИЕНТА"
-           style="-fx-font-size: 13px; -fx-text-fill: #888; -fx-font-weight: bold;"/>
+           style="-fx-font-size: 12px; -fx-text-fill: #888; -fx-font-weight: bold;"/>
 
     <Label fx:id="titleLabel" text=""
            style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1A237E;"/>
@@ -22,7 +22,14 @@
               prefRowCount="10"
               style="-fx-font-size: 14px; -fx-font-family: monospace;"/>
 
-    <Button text="Закрыть" onAction="#onClose"
-            style="-fx-background-color: #455A64; -fx-text-fill: white;
-                   -fx-font-size: 13px; -fx-padding: 8 20 8 20; -fx-cursor: hand;"/>
+    <Label fx:id="saveStatusLabel" text="" style="-fx-font-size: 12px;"/>
+
+    <HBox spacing="12">
+        <Button text="💾 Сохранить талон" onAction="#onSave"
+                style="-fx-background-color: #2E7D32; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-padding: 8 20 8 20; -fx-cursor: hand;"/>
+        <Button text="Закрыть" onAction="#onClose"
+                style="-fx-background-color: #455A64; -fx-text-fill: white;
+                       -fx-font-size: 13px; -fx-padding: 8 20 8 20; -fx-cursor: hand;"/>
+    </HBox>
 </VBox>
