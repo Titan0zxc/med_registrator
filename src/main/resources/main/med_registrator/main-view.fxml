@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="main.med_registrator.controller.MainController">
+
+    <VBox spacing="16" style="-fx-background-color: #F5F5F5;">
+        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+        <!-- Заголовок -->
+        <Label text="Цифровой двойник медицинского регистратора"
+               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1565C0;"/>
+        <Label text="Заполните анкету для определения вида медицинской помощи"
+               style="-fx-font-size: 13px; -fx-text-fill: #555;"/>
+
+        <Separator/>
+
+        <!-- Возраст -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Возраст пациента:" style="-fx-font-weight: bold;"/>
+            <Spinner fx:id="ageSpinner" prefWidth="100"/>
+        </HBox>
+
+        <!-- Хронические заболевания -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Хронические заболевания:" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="chronicField" promptText="(необязательно)" prefWidth="300"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Критические симптомы -->
+        <Label text="🔴 Критические симптомы (5 баллов)"
+               style="-fx-font-weight: bold; -fx-text-fill: #C62828; -fx-font-size: 14px;"/>
+        <VBox fx:id="criticalBox" spacing="6">
+            <padding><Insets left="16"/></padding>
+        </VBox>
+
+        <!-- Острые симптомы -->
+        <Label text="🟡 Острые симптомы (3 балла)"
+               style="-fx-font-weight: bold; -fx-text-fill: #E65100; -fx-font-size: 14px;"/>
+        <VBox fx:id="acuteBox" spacing="6">
+            <padding><Insets left="16"/></padding>
+        </VBox>
+
+        <!-- Лёгкие симптомы -->
+        <Label text="🟢 Лёгкие / плановые симптомы (1 балл)"
+               style="-fx-font-weight: bold; -fx-text-fill: #2E7D32; -fx-font-size: 14px;"/>
+        <VBox fx:id="mildBox" spacing="6">
+            <padding><Insets left="16"/></padding>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Статус и кнопки -->
+        <Label fx:id="statusLabel" text="" style="-fx-font-size: 13px;"/>
+
+        <HBox spacing="12">
+            <Button text="Подать анкету" onAction="#onSubmit"
+                    style="-fx-background-color: #1565C0; -fx-text-fill: white;
+                           -fx-font-size: 14px; -fx-padding: 10 24 10 24; -fx-cursor: hand;"/>
+            <Button text="Очистить" onAction="#onClear"
+                    style="-fx-font-size: 14px; -fx-padding: 10 24 10 24; -fx-cursor: hand;"/>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

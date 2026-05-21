@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox fx:id="root" spacing="20" style="-fx-background-color: #FFFFFF;"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="main.med_registrator.controller.TicketController">
+    <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+
+    <Label text="ТАЛОН ПАЦИЕНТА"
+           style="-fx-font-size: 13px; -fx-text-fill: #888; -fx-font-weight: bold;"/>
+
+    <Label fx:id="titleLabel" text=""
+           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1A237E;"/>
+
+    <Separator/>
+
+    <TextArea fx:id="detailsArea"
+              editable="false"
+              wrapText="true"
+              prefRowCount="10"
+              style="-fx-font-size: 14px; -fx-font-family: monospace;"/>
+
+    <Button text="Закрыть" onAction="#onClose"
+            style="-fx-background-color: #455A64; -fx-text-fill: white;
+                   -fx-font-size: 13px; -fx-padding: 8 20 8 20; -fx-cursor: hand;"/>
+</VBox>
