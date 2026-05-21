@@ -19,6 +19,7 @@ import java.util.List;
 
 public class MainController {
 
+    @FXML private TextField fullNameField;   // НОВОЕ
     @FXML private Spinner<Integer> ageSpinner;
     @FXML private TextField chronicField;
     @FXML private VBox criticalBox;
@@ -30,12 +31,9 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // Настройка спиннера возраста
         ageSpinner.setValueFactory(
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 120, 30)
         );
-
-        // Добавляем чекбоксы симптомов по категориям
         addSymptoms(criticalBox, ScaleConfig.CRITICAL, "🔴 ");
         addSymptoms(acuteBox,    ScaleConfig.ACUTE,    "🟡 ");
         addSymptoms(mildBox,     ScaleConfig.MILD,      "🟢 ");
@@ -53,7 +51,13 @@ public class MainController {
 
     @FXML
     private void onSubmit() {
-        // Собираем выбранные симптомы
+        String fullName = fullNameField.getText().trim();
+        if (fullName.isEmpty()) {
+            statusLabel.setText("⚠ Введите ФИО пациента.");
+            statusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
         List<Symptom> selected = symptomCheckboxes.stream()
                 .filter(CheckBox::isSelected)
                 .map(cb -> (Symptom) cb.getUserData())
@@ -62,7 +66,7 @@ public class MainController {
         int age = ageSpinner.getValue();
         String chronic = chronicField.getText().trim();
 
-        Questionnaire q = new Questionnaire(age, chronic, selected);
+        Questionnaire q = new Questionnaire(fullName, age, chronic, selected);
         Pipeline pipeline = new Pipeline();
         Pipeline.Result result = pipeline.run(q);
 
@@ -72,7 +76,9 @@ public class MainController {
             return;
         }
 
-        // Открываем экран талона
+        statusLabel.setText("✓ Талон сформирован для: " + fullName);
+        statusLabel.setStyle("-fx-text-fill: green;");
+
         try {
             showTicket(result.ticket());
         } catch (IOException e) {
@@ -83,16 +89,34 @@ public class MainController {
     @FXML
     private void onClear() {
         symptomCheckboxes.forEach(cb -> cb.setSelected(false));
+        fullNameField.clear();
         chronicField.clear();
         ageSpinner.getValueFactory().setValue(30);
         statusLabel.setText("");
+        statusLabel.setStyle("");
+    }
+
+    @FXML
+    private void onOpenJournal() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    MedApplication.class.getResource("journal-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 900, 500);
+            Stage stage = new Stage();
+            stage.setTitle("Журнал обращений");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            statusLabel.setText("Ошибка открытия журнала: " + e.getMessage());
+        }
     }
 
     private void showTicket(Ticket ticket) throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 MedApplication.class.getResource("ticket-view.fxml")
         );
-        Scene scene = new Scene(loader.load(), 500, 450);
+        Scene scene = new Scene(loader.load(), 500, 500);
         TicketController controller = loader.getController();
         controller.setTicket(ticket);
 
