@@ -18,6 +18,12 @@
 
         <Separator/>
 
+        <!-- ФИО -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="ФИО пациента:" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="fullNameField" promptText="Иванов Иван Иванович" prefWidth="300"/>
+        </HBox>
+
         <!-- Возраст -->
         <HBox spacing="12" alignment="CENTER_LEFT">
             <Label text="Возраст пациента:" style="-fx-font-weight: bold;"/>
@@ -55,7 +61,6 @@
 
         <Separator/>
 
-        <!-- Статус и кнопки -->
         <Label fx:id="statusLabel" text="" style="-fx-font-size: 13px;"/>
 
         <HBox spacing="12">
@@ -64,6 +69,9 @@
                            -fx-font-size: 14px; -fx-padding: 10 24 10 24; -fx-cursor: hand;"/>
             <Button text="Очистить" onAction="#onClear"
                     style="-fx-font-size: 14px; -fx-padding: 10 24 10 24; -fx-cursor: hand;"/>
+            <Button text="📋 Журнал обращений" onAction="#onOpenJournal"
+                    style="-fx-font-size: 14px; -fx-padding: 10 24 10 24; -fx-cursor: hand;
+                           -fx-background-color: #37474F; -fx-text-fill: white;"/>
         </HBox>
 
     </VBox>
