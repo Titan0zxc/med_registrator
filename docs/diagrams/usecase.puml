@@ -1,0 +1,53 @@
+@startuml usecase
+!theme plain
+skinparam defaultFontName Arial
+skinparam usecase {
+    BackgroundColor #E3F2FD
+    BorderColor #1565C0
+}
+skinparam actor {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+}
+
+title Use Case диаграмма\nЦифровой двойник медицинского регистратора
+
+left to right direction
+
+actor "Пациент" as P
+actor "Администратор" as A
+actor "МИС" as MIS
+actor "Сервис записи" as SCH
+actor "Скорая помощь" as EMG
+
+rectangle "Цифровой двойник медицинского регистратора" {
+    usecase "UC1: Заполнить анкету\n(симптомы, ФИО, возраст)" as UC1
+    usecase "UC2: Проверить и\nобогатить данные" as UC2
+    usecase "UC3: Оценить тяжесть\nсостояния (балл → приоритет)" as UC3
+    usecase "UC4a: Вызвать скорую\n[балл ≥ 5 / критич. симптом]" as UC4a #FFEBEE
+    usecase "UC4b: Врач на дом\n[балл 3–4]" as UC4b #FFFDE7
+    usecase "UC4c: Запись в поликлинику\n[балл 1–2]" as UC4c #E8F5E9
+    usecase "UC5: Сформировать\nи сохранить талон" as UC5
+    usecase "UC6: Настроить\nшкалу симптомов" as UC6
+    usecase "UC7: Просмотр журнала\nобращений" as UC7
+}
+
+P --> UC1
+P --> UC5 : получает талон
+A --> UC6
+A --> UC7
+
+UC1 ..> UC2 : <<include>>
+UC2 ..> UC3 : <<include>>
+UC3 ..> UC4a : <<extend>>\n[RED]
+UC3 ..> UC4b : <<extend>>\n[YELLOW]
+UC3 ..> UC4c : <<extend>>\n[GREEN]
+UC4a ..> UC5 : <<include>>
+UC4b ..> UC5 : <<include>>
+UC4c ..> UC5 : <<include>>
+
+MIS --> UC2
+SCH --> UC4b
+SCH --> UC4c
+EMG --> UC4a
+@enduml

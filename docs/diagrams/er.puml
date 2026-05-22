@@ -1,0 +1,37 @@
+@startuml er
+!theme plain
+skinparam defaultFontName Arial
+
+title ER-диаграмма базы данных\nmed_registrator.db
+
+entity "questionnaires" as Q {
+    * id : INTEGER <<PK, AUTOINCREMENT>>
+    --
+    full_name : TEXT
+    symptoms : TEXT
+    total_score : INTEGER
+    chronic : TEXT
+    age : INTEGER
+    created_at : TIMESTAMP
+}
+
+entity "appeals" as A {
+    * id : INTEGER <<PK, AUTOINCREMENT>>
+    --
+    * questionnaire_id : INTEGER <<FK>>
+    priority : TEXT
+    created_at : TIMESTAMP
+}
+
+entity "tickets" as T {
+    * id : INTEGER <<PK, AUTOINCREMENT>>
+    --
+    * appeal_id : INTEGER <<FK>>
+    type : TEXT
+    details : TEXT
+    created_at : TIMESTAMP
+}
+
+Q ||--o{ A : "порождает"
+A ||--o| T : "формирует"
+@enduml

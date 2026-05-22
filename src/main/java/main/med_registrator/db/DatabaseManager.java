@@ -45,9 +45,17 @@ public class DatabaseManager {
                     details TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )""");
+
+            // Миграция: добавляем full_name если старая БД без него
+            try {
+                st.execute("ALTER TABLE questionnaires ADD COLUMN full_name TEXT");
+            } catch (SQLException ignored) {
+                // Колонка уже есть — игнорируем
+            }
         }
     }
 
+    // ... остальное без изменений
     public int saveQuestionnaire(String fullName, String symptoms, int totalScore,
                                  String chronic, int age) throws SQLException {
         String sql = "INSERT INTO questionnaires (full_name, symptoms, total_score, chronic, age) VALUES (?, ?, ?, ?, ?)";
@@ -86,7 +94,6 @@ public class DatabaseManager {
         }
     }
 
-    // Для журнала — возвращает все обращения
     public List<String[]> getAllAppeals() throws SQLException {
         String sql = """
             SELECT a.id, q.full_name, q.age, a.priority, a.created_at, t.type, t.details

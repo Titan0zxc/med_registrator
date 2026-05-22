@@ -1,0 +1,52 @@
+@startuml context
+!theme plain
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #1565C0
+    FontSize 13
+}
+skinparam actor {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+}
+skinparam database {
+    BackgroundColor #FFF9C4
+    BorderColor #F57F17
+}
+skinparam ArrowColor #455A64
+skinparam defaultFontName Arial
+
+title Контекстная диаграмма\nЦифровой двойник медицинского регистратора
+
+actor "Пациент" as P
+actor "Администратор" as A
+
+rectangle "Цифровой двойник\nмедицинского регистратора" as SYS #BBDEFB
+
+rectangle "МИС\n(Мед. инф. система)" as MIS
+rectangle "Служба скорой\nпомощи (103)" as EMG #FFEBEE
+rectangle "Сервис записи\nврачей" as SCH #E8F5E9
+rectangle "Страховая\nкомпания" as INS
+rectangle "Платёжная\nсистема" as PAY
+
+database "SQLite БД\nmed_registrator.db" as DB #FFF9C4
+
+P --> SYS : Анкета симптомов\n(ФИО, возраст, симптомы)
+SYS --> P : PDF-талон
+
+A --> SYS : Настройка конфигурации\nшкалы симптомов
+
+SYS --> MIS : Запрос данных пациента
+MIS --> SYS : ФИО, страховой номер,\nистория болезней
+
+SYS --> EMG : Запрос вызова\n[КРАСНЫЙ приоритет]
+EMG --> SYS : Подтверждение + ETA
+
+SYS --> SCH : Запрос слота\n[ЖЁЛТЫЙ / ЗЕЛЁНЫЙ]
+SCH --> SYS : Врач, кабинет,\nвремя приёма
+
+SYS --> INS : Данные об обращении
+SYS --> PAY : Запрос оплаты\n(заглушка)
+
+SYS --> DB : Сохранение анкеты,\nобращения, талона
+@enduml

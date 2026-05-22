@@ -1,0 +1,40 @@
+@startuml pipes_filters
+!theme plain
+skinparam defaultFontName Arial
+skinparam rectangle {
+    BorderColor #455A64
+    FontSize 12
+}
+
+title Архитектура «Каналы и фильтры»\nЦифровой двойник медицинского регистратора
+
+rectangle "Источник\nАнкета пациента\n(ФИО, симптомы, возраст)" as SRC #E3F2FD
+rectangle "Фильтр 1\nВалидация\n(полнота, формат)" as F1 #EDE7F6
+rectangle "Фильтр 2\nОбогащение (МИС)\n(ФИО, страховой, история)" as F2 #EDE7F6
+rectangle "Фильтр 3\nКлассификация\n(балл → приоритет)" as F3 #EDE7F6
+rectangle "Фильтр 4\nМаршрутизация\n(RED / YELLOW / GREEN)" as F4 #EDE7F6
+
+rectangle "Обработчик RED\nЗапрос в скорую\n+ ETA" as HRED #FFEBEE
+rectangle "Обработчик YELLOW\nВрач на дом\n+ очередь" as HYEL #FFFDE7
+rectangle "Обработчик GREEN\nЗапись в поликлинику\n+ слот врача" as HGRN #E8F5E9
+
+rectangle "Фильтр 5\nСборка талона\n(TicketObject)" as F5 #EDE7F6
+rectangle "Фильтр 6\nСохранение в БД\n(questionnaire, appeal, ticket)" as F6 #EDE7F6
+rectangle "Сток\nТалон пациенту\n(экран + файл)" as SNK #E3F2FD
+
+SRC --> F1 : AnkData
+F1 --> F2 : ValidData
+F2 --> F3 : RichData
+F3 --> F4 : PrioData
+
+F4 --> HRED : [RED]
+F4 --> HYEL : [YELLOW]
+F4 --> HGRN : [GREEN]
+
+HRED --> F5 : TicketData
+HYEL --> F5 : TicketData
+HGRN --> F5 : TicketData
+
+F5 --> F6 : TicketObject
+F6 --> SNK : PDF / TXT
+@enduml
