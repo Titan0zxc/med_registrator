@@ -102,7 +102,7 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(
                     MedApplication.class.getResource("journal-view.fxml")
             );
-            Scene scene = new Scene(loader.load(), 900, 500);
+            Scene scene = new Scene(loader.load(), 1000, 600);
             Stage stage = new Stage();
             stage.setTitle("Журнал обращений");
             stage.setScene(scene);

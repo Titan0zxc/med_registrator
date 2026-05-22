@@ -3,32 +3,131 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="12" style="-fx-background-color: #FAFAFA;"
+<VBox spacing="0" style="-fx-background-color: #FAFAFA;"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="main.med_registrator.controller.JournalController">
-    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-    <Label text="Журнал обращений"
-           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1565C0;"/>
+    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
-    <TableView fx:id="table" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colId"       text="№"          prefWidth="50"/>
-            <TableColumn fx:id="colName"     text="ФИО"        prefWidth="200"/>
-            <TableColumn fx:id="colAge"      text="Возраст"    prefWidth="70"/>
-            <TableColumn fx:id="colPriority" text="Приоритет"  prefWidth="100"/>
-            <TableColumn fx:id="colDate"     text="Дата/время" prefWidth="160"/>
-            <TableColumn fx:id="colType"     text="Тип помощи" prefWidth="120"/>
-        </columns>
-    </TableView>
+        <!-- ===== ВКЛАДКА 1: ЖУРНАЛ ===== -->
+        <Tab text="📋 Журнал обращений">
+            <VBox spacing="12" VBox.vgrow="ALWAYS">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
 
-    <Label fx:id="statusLabel" text="" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+                <Label text="Журнал обращений"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1565C0;"/>
 
-    <HBox spacing="12">
-        <Button text="🔄 Обновить" onAction="#onRefresh"
-                style="-fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
-        <Button text="Закрыть" onAction="#onClose"
-                style="-fx-background-color: #455A64; -fx-text-fill: white;
-                       -fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
-    </HBox>
+                <TableView fx:id="table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId"       text="№"          prefWidth="50"/>
+                        <TableColumn fx:id="colName"     text="ФИО"        prefWidth="200"/>
+                        <TableColumn fx:id="colAge"      text="Возраст"    prefWidth="70"/>
+                        <TableColumn fx:id="colPriority" text="Приоритет"  prefWidth="100"/>
+                        <TableColumn fx:id="colDate"     text="Дата/время" prefWidth="160"/>
+                        <TableColumn fx:id="colType"     text="Тип помощи" prefWidth="120"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="statusLabel" text="" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+
+                <HBox spacing="12">
+                    <Button text="🔄 Обновить" onAction="#onRefresh"
+                            style="-fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
+                    <Button text="Закрыть" onAction="#onClose"
+                            style="-fx-background-color: #455A64; -fx-text-fill: white;
+                                   -fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <!-- ===== ВКЛАДКА 2: СТАТИСТИКА ===== -->
+        <Tab text="📊 Статистика">
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="16">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+                    <Label text="Статистика обращений"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1565C0;"/>
+
+                    <!-- Быстрые фильтры -->
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="Период:" style="-fx-font-weight: bold;"/>
+                        <Button text="Сегодня"    onAction="#onPeriodDay"
+                                style="-fx-padding: 6 12 6 12; -fx-cursor: hand;"/>
+                        <Button text="Неделя"     onAction="#onPeriodWeek"
+                                style="-fx-padding: 6 12 6 12; -fx-cursor: hand;"/>
+                        <Button text="Месяц"      onAction="#onPeriodMonth"
+                                style="-fx-padding: 6 12 6 12; -fx-cursor: hand;"/>
+                        <Button text="Всё время"  onAction="#onPeriodAll"
+                                style="-fx-padding: 6 12 6 12; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Произвольный период -->
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="С:" style="-fx-font-weight: bold;"/>
+                        <DatePicker fx:id="dateFrom" prefWidth="150"/>
+                        <Label text="По:" style="-fx-font-weight: bold;"/>
+                        <DatePicker fx:id="dateTo" prefWidth="150"/>
+                        <Button text="Показать" onAction="#onLoadStats"
+                                style="-fx-background-color: #1565C0; -fx-text-fill: white;
+                                       -fx-padding: 6 16 6 16; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- Итоговые цифры -->
+                    <Label fx:id="lblTotal" text="Всего обращений: —"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+
+                    <HBox spacing="24" alignment="BOTTOM_LEFT">
+                        <Label fx:id="lblRed"    text="🔴 Скорая: —"       style="-fx-font-size: 13px;"/>
+                        <Label fx:id="lblYellow" text="🟡 Врач на дом: —"  style="-fx-font-size: 13px;"/>
+                        <Label fx:id="lblGreen"  text="🟢 Поликлиника: —"  style="-fx-font-size: 13px;"/>
+                    </HBox>
+
+                    <!-- Цветные полосы-диаграммы -->
+                    <HBox spacing="16" alignment="BOTTOM_LEFT" prefHeight="170">
+                        <VBox alignment="BOTTOM_CENTER" spacing="4">
+                            <VBox fx:id="barRed" prefWidth="80" prefHeight="4"
+                                  style="-fx-background-color: #EF5350; -fx-background-radius: 4 4 0 0;"/>
+                            <Label text="RED" style="-fx-font-size: 11px; -fx-text-fill: #C62828;"/>
+                        </VBox>
+                        <VBox alignment="BOTTOM_CENTER" spacing="4">
+                            <VBox fx:id="barYellow" prefWidth="80" prefHeight="4"
+                                  style="-fx-background-color: #FFA726; -fx-background-radius: 4 4 0 0;"/>
+                            <Label text="YELLOW" style="-fx-font-size: 11px; -fx-text-fill: #E65100;"/>
+                        </VBox>
+                        <VBox alignment="BOTTOM_CENTER" spacing="4">
+                            <VBox fx:id="barGreen" prefWidth="80" prefHeight="4"
+                                  style="-fx-background-color: #66BB6A; -fx-background-radius: 4 4 0 0;"/>
+                            <Label text="GREEN" style="-fx-font-size: 11px; -fx-text-fill: #2E7D32;"/>
+                        </VBox>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- Таблица обращений за период -->
+                    <Label text="Обращения за выбранный период:"
+                           style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+
+                    <TableView fx:id="statTable" prefHeight="220">
+                        <columns>
+                            <TableColumn fx:id="stColId"       text="№"          prefWidth="50"/>
+                            <TableColumn fx:id="stColName"     text="ФИО"        prefWidth="180"/>
+                            <TableColumn fx:id="stColAge"      text="Возраст"    prefWidth="70"/>
+                            <TableColumn fx:id="stColPriority" text="Приоритет"  prefWidth="100"/>
+                            <TableColumn fx:id="stColDate"     text="Дата/время" prefWidth="160"/>
+                            <TableColumn fx:id="stColType"     text="Тип помощи" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+
+                    <Label fx:id="statStatus" text="" style="-fx-font-size: 12px; -fx-text-fill: #555;"/>
+
+                    <Button text="🔄 Обновить" onAction="#onRefreshStats"
+                            style="-fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
+                </VBox>
+            </ScrollPane>
+        </Tab>
+
+    </TabPane>
 </VBox>

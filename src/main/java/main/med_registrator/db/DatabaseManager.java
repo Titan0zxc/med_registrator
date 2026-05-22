@@ -3,6 +3,8 @@ package main.med_registrator.db;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class DatabaseManager {
 
@@ -45,17 +47,12 @@ public class DatabaseManager {
                     details TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )""");
-
-            // Миграция: добавляем full_name если старая БД без него
             try {
                 st.execute("ALTER TABLE questionnaires ADD COLUMN full_name TEXT");
-            } catch (SQLException ignored) {
-                // Колонка уже есть — игнорируем
-            }
+            } catch (SQLException ignored) {}
         }
     }
 
-    // ... остальное без изменений
     public int saveQuestionnaire(String fullName, String symptoms, int totalScore,
                                  String chronic, int age) throws SQLException {
         String sql = "INSERT INTO questionnaires (full_name, symptoms, total_score, chronic, age) VALUES (?, ?, ?, ?, ?)";
@@ -115,6 +112,61 @@ public class DatabaseManager {
                         rs.getString("type"),
                         rs.getString("details")
                 });
+            }
+        }
+        return result;
+    }
+
+    // Статистика за период: from/to в формате 'YYYY-MM-DD'
+    public Map<String, Integer> getStatsByPeriod(String from, String to) throws SQLException {
+        String sql = """
+            SELECT priority, COUNT(*) as cnt
+            FROM appeals
+            WHERE created_at >= ? AND created_at <= ? || ' 23:59:59'
+            GROUP BY priority
+        """;
+        Map<String, Integer> stats = new LinkedHashMap<>();
+        stats.put("RED", 0);
+        stats.put("YELLOW", 0);
+        stats.put("GREEN", 0);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, from);
+            ps.setString(2, to);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    stats.put(rs.getString("priority"), rs.getInt("cnt"));
+                }
+            }
+        }
+        return stats;
+    }
+
+    // Все обращения за период (для таблицы в статистике)
+    public List<String[]> getAppealsByPeriod(String from, String to) throws SQLException {
+        String sql = """
+            SELECT a.id, q.full_name, q.age, a.priority, a.created_at, t.type
+            FROM appeals a
+            JOIN questionnaires q ON a.questionnaire_id = q.id
+            LEFT JOIN tickets t ON t.appeal_id = a.id
+            WHERE a.created_at >= ? AND a.created_at <= ? || ' 23:59:59'
+            ORDER BY a.created_at DESC
+        """;
+        List<String[]> result = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, from);
+            ps.setString(2, to);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new String[]{
+                            rs.getString("id"),
+                            rs.getString("full_name"),
+                            rs.getString("age"),
+                            rs.getString("priority"),
+                            rs.getString("created_at"),
+                            rs.getString("type")
+                    });
+                }
             }
         }
         return result;
