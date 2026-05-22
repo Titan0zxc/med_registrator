@@ -26,6 +26,7 @@ public class MainController {
     @FXML private VBox acuteBox;
     @FXML private VBox mildBox;
     @FXML private Label statusLabel;
+    @FXML private TextField policyField;
 
     private final List<CheckBox> symptomCheckboxes = new ArrayList<>();
 
@@ -37,6 +38,17 @@ public class MainController {
         addSymptoms(criticalBox, ScaleConfig.CRITICAL, "🔴 ");
         addSymptoms(acuteBox,    ScaleConfig.ACUTE,    "🟡 ");
         addSymptoms(mildBox,     ScaleConfig.MILD,      "🟢 ");
+
+        policyField.setTextFormatter(new javafx.util.converter.DefaultStringConverter() != null ?
+                new javafx.scene.control.TextFormatter<>(change -> {
+                    String newText = change.getControlNewText();
+                    if (newText.matches("\\d{0,16}")) return change;
+                    return null;
+                }) : null);
+        policyField.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
+            if (change.getControlNewText().matches("\\d{0,16}")) return change;
+            return null;
+        }));
     }
 
     private void addSymptoms(VBox box, List<Symptom> symptoms, String prefix) {
@@ -52,6 +64,18 @@ public class MainController {
     @FXML
     private void onSubmit() {
         String fullName = fullNameField.getText().trim();
+        String policy = policyField.getText().trim();
+        if (policy.isEmpty()) {
+            statusLabel.setText("⚠ Введите номер полиса ОМС (16 цифр).");
+            statusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+        if (policy.length() != 16) {
+            statusLabel.setText("⚠ Номер полиса должен содержать ровно 16 цифр.");
+            statusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
         if (fullName.isEmpty()) {
             statusLabel.setText("⚠ Введите ФИО пациента.");
             statusLabel.setStyle("-fx-text-fill: red;");
@@ -66,7 +90,7 @@ public class MainController {
         int age = ageSpinner.getValue();
         String chronic = chronicField.getText().trim();
 
-        Questionnaire q = new Questionnaire(fullName, age, chronic, selected);
+        Questionnaire q = new Questionnaire(fullName, policy, age, chronic, selected);
         Pipeline pipeline = new Pipeline();
         Pipeline.Result result = pipeline.run(q);
 
@@ -84,12 +108,14 @@ public class MainController {
         } catch (IOException e) {
             statusLabel.setText("Ошибка открытия талона: " + e.getMessage());
         }
+
     }
 
     @FXML
     private void onClear() {
         symptomCheckboxes.forEach(cb -> cb.setSelected(false));
         fullNameField.clear();
+        policyField.clear();
         chronicField.clear();
         ageSpinner.getValueFactory().setValue(30);
         statusLabel.setText("");

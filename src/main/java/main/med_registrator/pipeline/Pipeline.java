@@ -6,14 +6,16 @@ import main.med_registrator.model.Ticket;
 
 public class Pipeline {
 
-    private final ValidationFilter validation = new ValidationFilter();
+    private final ValidationFilter  validation  = new ValidationFilter();
+    private final InsuranceFilter   insurance   = new InsuranceFilter();   // НОВЫЙ
     private final ClassificationFilter classification = new ClassificationFilter();
-    private final RoutingFilter routing = new RoutingFilter();
+    private final RoutingFilter     routing     = new RoutingFilter();
 
     public Result run(Questionnaire questionnaire) {
         Appeal appeal = new Appeal();
 
         validation.process(questionnaire, appeal);
+        insurance.process(questionnaire, appeal);      // НОВЫЙ — после валидации
         classification.process(questionnaire, appeal);
         routing.process(questionnaire, appeal);
 

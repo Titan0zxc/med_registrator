@@ -24,6 +24,13 @@
             <TextField fx:id="fullNameField" promptText="Иванов Иван Иванович" prefWidth="300"/>
         </HBox>
 
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Полис ОМС:" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="policyField" promptText="16 цифр" prefWidth="220" maxWidth="220"/>
+            <Label text="Проверяется через сервер МИС"
+                   style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+        </HBox>
+
         <!-- Возраст -->
         <HBox spacing="12" alignment="CENTER_LEFT">
             <Label text="Возраст пациента:" style="-fx-font-weight: bold;"/>
