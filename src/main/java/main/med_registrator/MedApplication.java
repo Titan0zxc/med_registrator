@@ -18,7 +18,7 @@ public class MedApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(
                 MedApplication.class.getResource("main-view.fxml")
         );
-        Scene scene = new Scene(fxmlLoader.load(), 700, 600);
+        Scene scene = new Scene(fxmlLoader.load(), 1200, 1000);
         stage.setTitle("Цифровой двойник медицинского регистратора");
         stage.setScene(scene);
         stage.setResizable(false);
