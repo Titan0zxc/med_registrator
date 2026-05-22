@@ -54,35 +54,35 @@
 ---
 
 ##  Структура проекта
-src/main/java/main/med_registrator/
-├── MedApplication.java          # Точка входа
-├── config/
-│   └── ScaleConfig.java         # Шкала симптомов (правила триажа)
-├── db/
-│   └── DatabaseManager.java     # SQLite: инициализация и CRUD
-├── model/
-│   ├── Questionnaire.java       # Анкета пациента
-│   ├── Symptom.java             # Симптом с баллом
-│   ├── Appeal.java              # Обращение (приоритет)
-│   └── Ticket.java              # Талон
-├── pipeline/
-│   ├── Filter.java              # Интерфейс фильтра
-│   ├── ValidationFilter.java    # Фильтр 1: валидация
-│   ├── ClassificationFilter.java# Фильтр 2: классификация
-│   ├── RoutingFilter.java       # Фильтр 3: маршрутизация + БД
-│   └── Pipeline.java            # Запуск цепочки фильтров
-├── handler/
-│   ├── RedHandler.java          # Обработчик: скорая помощь
-│   ├── YellowHandler.java       # Обработчик: врач на дом
-│   └── GreenHandler.java        # Обработчик: запись в поликлинику
-└── controller/
-├── MainController.java      # Главный экран (анкета)
-├── TicketController.java    # Экран талона
-└── JournalController.java   # Журнал обращений
-src/main/resources/main/med_registrator/
-├── main-view.fxml               # Форма анкеты
-├── ticket-view.fxml             # Экран талона
-└── journal-view.fxml            # Журнал обращений
+- src/main/java/main/med_registrator/
+- ├── MedApplication.java          # Точка входа
+- ├── config/
+- │   └── ScaleConfig.java         # Шкала симптомов (правила триажа)
+- ├── db/
+- │   └── DatabaseManager.java     # SQLite: инициализация и CRUD
+- ├── model/
+- │   ├── Questionnaire.java       # Анкета пациента
+- │   ├── Symptom.java             # Симптом с баллом
+- │   ├── Appeal.java              # Обращение (приоритет)
+- │   └── Ticket.java              # Талон
+- ├── pipeline/
+- │   ├── Filter.java              # Интерфейс фильтра
+- │   ├── ValidationFilter.java    # Фильтр 1: валидация
+- │   ├── ClassificationFilter.java# Фильтр 2: классификация
+- │   ├── RoutingFilter.java       # Фильтр 3: маршрутизация + БД
+- │   └── Pipeline.java            # Запуск цепочки фильтров
+- ├── handler/
+- │   ├── RedHandler.java          # Обработчик: скорая помощь
+- │   ├── YellowHandler.java       # Обработчик: врач на дом
+- │   └── GreenHandler.java        # Обработчик: запись в поликлинику
+- └── controller/
+- ├── MainController.java      # Главный экран (анкета)
+- ├── TicketController.java    # Экран талона
+- └── JournalController.java   # Журнал обращений
+- src/main/resources/main/med_registrator/
+- ├── main-view.fxml               # Форма анкеты
+- ├── ticket-view.fxml             # Экран талона
+- └── journal-view.fxml            # Журнал обращений
 
 
 ## 4. Диаграммы
@@ -116,49 +116,49 @@ src/main/resources/main/med_registrator/
 
 Данные анкеты последовательно проходят через цепочку независимых фильтров:
 Анкета пациента
-│ AnkData
-▼
-┌─────────────────┐
-│  Фильтр 1       │  Валидация полей (ФИО, возраст, симптомы)
-│  Validation     │
-└────────┬────────┘
-│ ValidData
-▼
-┌─────────────────┐
-│  Фильтр 2       │  Обогащение данными из МИС (заглушка)
-│  Enrichment     │
-└────────┬────────┘
-│ RichData
-▼
-┌─────────────────┐
-│  Фильтр 3       │  Подсчёт балла → RED / YELLOW / GREEN
-│  Classification │
-└────────┬────────┘
-│ PrioData
-▼
-┌─────────────────┐
-│  Фильтр 4       │  Выбор обработчика по приоритету
-│  Routing        │
-└──┬──────┬───┬───┘
-│      │   │
-RED  YELLOW GREEN
-│      │   │
-└──────┴───┘
-│ TicketData
-▼
-┌─────────────────┐
-│  Фильтр 5       │  Сборка объекта талона
-│  TicketBuilder  │
-└────────┬────────┘
-│ TicketObject
-▼
-┌─────────────────┐
-│  Фильтр 6       │  Сохранение в SQLite БД
-│  Database       │
-└────────┬────────┘
-│ PDF/TXT
-▼
-Талон пациенту
+- │ AnkData
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 1       │  Валидация полей (ФИО, возраст, симптомы)
+- │  Validation     │
+- └────────┬────────┘
+- │ ValidData
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 2       │  Обогащение данными из МИС (заглушка)
+- │  Enrichment     │
+- └────────┬────────┘
+- │ RichData
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 3       │  Подсчёт балла → RED / YELLOW / GREEN
+- │  Classification │
+- └────────┬────────┘
+- │ PrioData
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 4       │  Выбор обработчика по приоритету
+- │  Routing        │
+- └──┬──────┬───┬───┘
+- │      │   │
+- RED  YELLOW GREEN
+- │      │   │
+- └──────┴───┘
+- │ TicketData
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 5       │  Сборка объекта талона
+- │  TicketBuilder  │
+- └────────┬────────┘
+- │ TicketObject
+- ▼
+- ┌─────────────────┐
+- │  Фильтр 6       │  Сохранение в SQLite БД
+- │  Database       │
+- └────────┬────────┘
+- │ PDF/TXT
+- ▼
+- Талон пациенту
 
 ---
 
