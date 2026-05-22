@@ -8,30 +8,31 @@ entity "questionnaires" as Q {
     * id : INTEGER <<PK, AUTOINCREMENT>>
     --
     full_name : TEXT
+    insurance_policy : TEXT
     symptoms : TEXT
     total_score : INTEGER
     chronic : TEXT
     age : INTEGER
-    created_at : TIMESTAMP
+    created_at : TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 }
 
 entity "appeals" as A {
     * id : INTEGER <<PK, AUTOINCREMENT>>
     --
-    * questionnaire_id : INTEGER <<FK>>
-    priority : TEXT
-    created_at : TIMESTAMP
+    * questionnaire_id : INTEGER <<FK → questionnaires.id>>
+    priority : TEXT (RED / YELLOW / GREEN)
+    created_at : TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 }
 
 entity "tickets" as T {
     * id : INTEGER <<PK, AUTOINCREMENT>>
     --
-    * appeal_id : INTEGER <<FK>>
-    type : TEXT
+    * appeal_id : INTEGER <<FK → appeals.id>>
+    type : TEXT (RED / YELLOW / GREEN)
     details : TEXT
-    created_at : TIMESTAMP
+    created_at : TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 }
 
-Q ||--o{ A : "порождает"
-A ||--o| T : "формирует"
+Q ||--o{ A : "1 анкета порождает\nмного обращений"
+A ||--o| T : "1 обращение формирует\n1 талон"
 @enduml

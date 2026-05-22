@@ -1,0 +1,219 @@
+@startuml classes
+!theme plain
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEEDFE
+skinparam classBorderColor #534AB7
+skinparam classHeaderBackgroundColor #534AB7
+skinparam classHeaderFontColor #FFFFFF
+skinparam arrowColor #455A64
+skinparam stereotypeCBackgroundColor #E1F5EE
+skinparam stereotypeCBorderColor #0F6E56
+
+title Диаграмма классов — Цифровой двойник медицинского регистратора
+
+' ===== MODEL =====
+package "model" #EEEDFE {
+  class Questionnaire {
+    - String fullName
+    - String insurancePolicy
+    - int age
+    - String chronic
+    - List<Symptom> symptoms
+    - int totalScore
+    + Questionnaire(fullName, policy, age, chronic, symptoms)
+    + getFullName() : String
+    + getInsurancePolicy() : String
+    + getAge() : int
+    + getChronic() : String
+    + getSymptoms() : List<Symptom>
+    + getTotalScore() : int
+    + setTotalScore(int) : void
+  }
+
+  class Symptom {
+    - String name
+    - int score
+    + Symptom(name, score)
+    + getName() : String
+    + getScore() : int
+    + toString() : String
+  }
+
+  class Appeal {
+    - int questionnaireId
+    - Priority priority
+    - String errorMessage
+    + getPriority() : Priority
+    + setPriority(Priority) : void
+    + getQuestionnaireId() : int
+    + setQuestionnaireId(int) : void
+    + getErrorMessage() : String
+    + setErrorMessage(String) : void
+    + hasError() : boolean
+  }
+
+  enum Priority {
+    RED
+    YELLOW
+    GREEN
+  }
+
+  class Ticket {
+    - String type
+    - String title
+    - String details
+    - int appealId
+    + Ticket(type, title, details)
+    + getType() : String
+    + getTitle() : String
+    + getDetails() : String
+    + getAppealId() : int
+    + setAppealId(int) : void
+  }
+}
+
+' ===== PIPELINE =====
+package "pipeline" #E1F5EE {
+  interface Filter {
+    + process(Questionnaire, Appeal) : void
+  }
+
+  class Pipeline {
+    - ValidationFilter validation
+    - InsuranceFilter insurance
+    - ClassificationFilter classification
+    - RoutingFilter routing
+    + run(Questionnaire) : Result
+  }
+
+  class "Pipeline.Result" as Result <<record>> {
+    + boolean success
+    + Ticket ticket
+    + String errorMessage
+    + {static} success(Ticket) : Result
+    + {static} error(String) : Result
+  }
+
+  class ValidationFilter {
+    + process(Questionnaire, Appeal) : void
+    ' Проверяет: симптомы != null && !empty
+    ' Проверяет: возраст 0..120
+  }
+
+  class InsuranceFilter {
+    - {static} String SERVER_URL
+    - {static} int TIMEOUT_SEC = 3
+    + process(Questionnaire, Appeal) : void
+    ' GET http://localhost:8181/check?policy=
+    ' Если valid=false → setErrorMessage()
+    ' Если сервер недоступен → блокирует
+  }
+
+  class ClassificationFilter {
+    + process(Questionnaire, Appeal) : void
+    ' Суммирует баллы симптомов
+    ' Если score(5пт) → RED немедленно
+    ' >=5→RED, 3-4→YELLOW, 1-2→GREEN
+  }
+
+  class RoutingFilter {
+    - Ticket resultTicket
+    + process(Questionnaire, Appeal) : void
+    + getResultTicket() : Ticket
+    ' Вызывает нужный Handler
+    ' Сохраняет в БД через DatabaseManager
+  }
+}
+
+' ===== HANDLER =====
+package "handler" #FAECE7 {
+  class RedHandler {
+    + handle(Questionnaire, Appeal) : Ticket
+    ' Генерирует номер вызова EM-XXXXX
+    ' Возвращает талон со скорой и ETA
+  }
+
+  class YellowHandler {
+    + handle(Questionnaire, Appeal) : Ticket
+    ' Генерирует номер очереди 1-5
+    ' Возвращает талон с врачом на дом
+  }
+
+  class GreenHandler {
+    - {static} String[][] DOCTORS
+    - {static} String[] TIMES
+    + handle(Questionnaire, Appeal) : Ticket
+    ' Выбирает случайного врача из списка
+    ' Возвращает талон с кабинетом и временем
+  }
+}
+
+' ===== CONFIG =====
+package "config" #FAEEDA {
+  class ScaleConfig {
+    + {static} List<Symptom> CRITICAL
+    + {static} List<Symptom> ACUTE
+    + {static} List<Symptom> MILD
+    + {static} getAllSymptoms() : List<Symptom>
+    ' CRITICAL: 5 симптомов по 5 пт
+    ' ACUTE: 5 симптомов по 3 пт
+    ' MILD: 5 симптомов по 1 пт
+  }
+}
+
+' ===== DB =====
+package "db" #E6F1FB {
+  class DatabaseManager {
+    - {static} String DB_URL = "jdbc:sqlite:..."
+    - {static} DatabaseManager instance
+    - Connection connection
+    - DatabaseManager()
+    + {static} getInstance() : DatabaseManager
+    + init() : void
+    + saveQuestionnaire(name,symptoms,score,chronic,age) : int
+    + saveAppeal(questionnaireId, priority) : int
+    + saveTicket(appealId, type, details) : void
+    + getAllAppeals() : List<String[]>
+    + getStatsByPeriod(from, to) : Map<String,Integer>
+    + getAppealsByPeriod(from, to) : List<String[]>
+  }
+}
+
+' ===== SERVER =====
+package "server" #EAF3DE {
+  class InsuranceServer {
+    - {static} int PORT = 8181
+    + {static} main(String[]) : void
+    - {static} handleCheck(HttpExchange) : void
+    - {static} checkPolicy(String) : boolean
+    - {static} sendResponse(exchange,code,body) : void
+    ' Правило: 16 цифр + все чётные → valid=true
+    ' Возвращает JSON {policy, valid, message}
+  }
+}
+
+' ===== СВЯЗИ =====
+Questionnaire "1" *-- "*" Symptom : содержит >
+Appeal --> Priority : имеет >
+
+Filter <|.. ValidationFilter : реализует
+Filter <|.. InsuranceFilter : реализует
+Filter <|.. ClassificationFilter : реализует
+Filter <|.. RoutingFilter : реализует
+
+Pipeline --> ValidationFilter : запускает 1-м >
+Pipeline --> InsuranceFilter : запускает 2-м >
+Pipeline --> ClassificationFilter : запускает 3-м >
+Pipeline --> RoutingFilter : запускает 4-м >
+Pipeline ..> Result : создаёт >
+
+RoutingFilter --> RedHandler : вызывает [RED] >
+RoutingFilter --> YellowHandler : вызывает [YELLOW] >
+RoutingFilter --> GreenHandler : вызывает [GREEN] >
+RoutingFilter --> DatabaseManager : сохраняет >
+RoutingFilter ..> Ticket : формирует >
+
+InsuranceFilter ..> InsuranceServer : HTTP GET >
+ClassificationFilter --> ScaleConfig : читает правила >
+
+@enduml

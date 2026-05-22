@@ -8,24 +8,36 @@ skinparam rectangle {
 
 title Архитектура «Каналы и фильтры»\nЦифровой двойник медицинского регистратора
 
-rectangle "Источник\nАнкета пациента\n(ФИО, симптомы, возраст)" as SRC #E3F2FD
-rectangle "Фильтр 1\nВалидация\n(полнота, формат)" as F1 #EDE7F6
-rectangle "Фильтр 2\nОбогащение (МИС)\n(ФИО, страховой, история)" as F2 #EDE7F6
-rectangle "Фильтр 3\nКлассификация\n(балл → приоритет)" as F3 #EDE7F6
+rectangle "Источник\nАнкета пациента\n(ФИО, полис ОМС,\nсимптомы, возраст)" as SRC #E3F2FD
+
+rectangle "Фильтр 1\nВалидация\n(ФИО не пустое,\nсимптомы >= 1,\nвозраст 0..120)" as F1 #EDE7F6
+
+rectangle "Фильтр 2\nПроверка полиса ОМС\n(HTTP GET InsuranceServer\nвсе цифры чётные → valid)" as F2 #E8F5E9
+
+rectangle "Фильтр 3\nКлассификация\n(Σ баллов симптомов\n5пт → RED немедленно\n>=5 RED, 3-4 YELLOW, 1-2 GREEN)" as F3 #EDE7F6
+
 rectangle "Фильтр 4\nМаршрутизация\n(RED / YELLOW / GREEN)" as F4 #EDE7F6
 
-rectangle "Обработчик RED\nЗапрос в скорую\n+ ETA" as HRED #FFEBEE
-rectangle "Обработчик YELLOW\nВрач на дом\n+ очередь" as HYEL #FFFDE7
-rectangle "Обработчик GREEN\nЗапись в поликлинику\n+ слот врача" as HGRN #E8F5E9
+rectangle "Обработчик RED\nЗапрос в скорую (заглушка)\nномер вызова EM-XXXXX + ETA" as HRED #FFEBEE
 
-rectangle "Фильтр 5\nСборка талона\n(TicketObject)" as F5 #EDE7F6
-rectangle "Фильтр 6\nСохранение в БД\n(questionnaire, appeal, ticket)" as F6 #EDE7F6
-rectangle "Сток\nТалон пациенту\n(экран + файл)" as SNK #E3F2FD
+rectangle "Обработчик YELLOW\nВрач на дом (заглушка)\nномер очереди + время визита" as HYEL #FFFDE7
 
-SRC --> F1 : AnkData
+rectangle "Обработчик GREEN\nЗапись в поликлинику (заглушка)\nврач, кабинет, этаж, время" as HGRN #E8F5E9
+
+rectangle "Фильтр 5\nСборка талона\n(объект Ticket:\ntype, title, details)" as F5 #EDE7F6
+
+rectangle "Фильтр 6\nСохранение в БД\n(questionnaires,\nappeals, tickets)" as F6 #EDE7F6
+
+rectangle "Сток\nТалон пациенту\n(экран JavaFX\n+ сохранение TXT)" as SNK #E3F2FD
+
+rectangle "InsuranceServer\nlocalhost:8181\n{valid: true/false}" as ISRV #E8F5E9
+
+SRC --> F1 : AnkData\n(Questionnaire)
 F1 --> F2 : ValidData
+F2 --> ISRV : GET /check?policy=
+ISRV --> F2 : JSON ответ
 F2 --> F3 : RichData
-F3 --> F4 : PrioData
+F3 --> F4 : PrioData\n(+ priority)
 
 F4 --> HRED : [RED]
 F4 --> HYEL : [YELLOW]
@@ -36,5 +48,5 @@ HYEL --> F5 : TicketData
 HGRN --> F5 : TicketData
 
 F5 --> F6 : TicketObject
-F6 --> SNK : PDF / TXT
+F6 --> SNK : TXT файл
 @enduml

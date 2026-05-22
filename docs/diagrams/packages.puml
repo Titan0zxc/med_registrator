@@ -1,0 +1,52 @@
+@startuml packages
+!theme plain
+skinparam defaultFontName Arial
+title Диаграмма пакетов
+
+package "main.med_registrator" {
+  package "controller" {
+    class MainController
+    class TicketController
+    class JournalController
+  }
+  package "model" {
+    class Questionnaire
+    class Symptom
+    class Appeal
+    class Ticket
+  }
+  package "pipeline" {
+    interface Filter
+    class ValidationFilter
+    class InsuranceFilter
+    class ClassificationFilter
+    class RoutingFilter
+    class Pipeline
+  }
+  package "handler" {
+    class RedHandler
+    class YellowHandler
+    class GreenHandler
+  }
+  package "db" {
+    class DatabaseManager
+  }
+  package "config" {
+    class ScaleConfig
+  }
+  package "server" {
+    class InsuranceServer
+  }
+  class MedApplication
+}
+
+controller ..> pipeline : use
+controller ..> model : use
+pipeline ..> model : use
+pipeline ..> handler : use
+pipeline ..> db : use
+pipeline ..> config : use
+InsuranceFilter ..> server : HTTP
+MedApplication ..> controller : launch
+MedApplication ..> db : init
+@enduml

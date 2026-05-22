@@ -19,25 +19,22 @@ skinparam defaultFontName Arial
 title Контекстная диаграмма\nЦифровой двойник медицинского регистратора
 
 actor "Пациент" as P
-actor "Администратор" as A
 
 rectangle "Цифровой двойник\nмедицинского регистратора" as SYS #BBDEFB
 
-rectangle "МИС\n(Мед. инф. система)" as MIS
+rectangle "InsuranceServer\n(проверка полисов ОМС)\nlocalhost:8181" as INS_SRV #E8F5E9
 rectangle "Служба скорой\nпомощи (103)" as EMG #FFEBEE
-rectangle "Сервис записи\nврачей" as SCH #E8F5E9
-rectangle "Страховая\nкомпания" as INS
-rectangle "Платёжная\nсистема" as PAY
+rectangle "Сервис записи\nврачей (заглушка)" as SCH #E8F5E9
+rectangle "Страховая\nкомпания (заглушка)" as INS
+rectangle "Платёжная\nсистема (заглушка)" as PAY
 
 database "SQLite БД\nmed_registrator.db" as DB #FFF9C4
 
-P --> SYS : Анкета симптомов\n(ФИО, возраст, симптомы)
-SYS --> P : PDF-талон
+P --> SYS : Анкета\n(ФИО, полис ОМС,\nвозраст, симптомы)
+SYS --> P : Талон (TXT)\n🔴🟡🟢
 
-A --> SYS : Настройка конфигурации\nшкалы симптомов
-
-SYS --> MIS : Запрос данных пациента
-MIS --> SYS : ФИО, страховой номер,\nистория болезней
+SYS --> INS_SRV : GET /check?policy=XXXXXXXXXXXXXXXX
+INS_SRV --> SYS : {valid: true/false}
 
 SYS --> EMG : Запрос вызова\n[КРАСНЫЙ приоритет]
 EMG --> SYS : Подтверждение + ETA
@@ -49,4 +46,5 @@ SYS --> INS : Данные об обращении
 SYS --> PAY : Запрос оплаты\n(заглушка)
 
 SYS --> DB : Сохранение анкеты,\nобращения, талона
+DB --> SYS : История обращений,\nстатистика по периодам
 @enduml
